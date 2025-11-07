@@ -1,3 +1,4 @@
+import config
 # --------------XceptionNet--------------
 import torch
 from torch import Tensor
@@ -177,3 +178,27 @@ class XceptionBlock(nn.Module):
 
         return out
 
+def initializeComponents(num_classes):
+    print("Initializing XceptionNet for image deepfake...")
+    model = Xception(num_classes=num_classes)
+    
+    # Common optimizer: Adam with weight decay
+    optimizer = torch.optim.Adam(
+        model.parameters(),
+        lr=0.01,
+        betas=(0.9, 0.999),
+        eps=1e-8,
+        weight_decay=1e-5
+    )
+    
+    # Common scheduler: CosineAnnealingLR for smooth learning rate decay
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=config.EPOCHS,
+        eta_min=1e-6
+    )
+    
+    print("Done.")
+    
+    return model, optimizer, scheduler
+    
