@@ -135,7 +135,7 @@ def train(
     # Save two lists for later plotting.
     np.savez(
         "results/two_loss_lists.npz",
-        train=trainLossList,
-        test=testLossList
+        train_loss=trainLossList,
+        test_loss=testLossList
     )
     print("Done.")
