@@ -5,7 +5,7 @@ DATA_DIR = "/kaggle/input/kaggle-ff"
 
 
 
-EPOCHS = 100
+EPOCHS = 150
 
 
 MODEL_NAMES = ['XceptionNet']
