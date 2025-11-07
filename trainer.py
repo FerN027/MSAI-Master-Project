@@ -9,17 +9,27 @@ def train(
     trainLoader,
     testLoader,
     optimizer,
-    scheduler
+    scheduler,
+    num_classes
 ):
+    needPrecisionPerClass = num_classes > 2
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
     criterion = torch.nn.CrossEntropyLoss().to(device)  # default for binary classification
+
+    print(f"Device: {device}, Epoch: {config.EPOCHS}, Begin training......")
 
     """
     Training loop:
         Record only train/test loss for each epoch for plotting;
 
-        Print/save loss, accuracy, precision, F1 score for train/test only for the last epoch as final performance.
+        Only for the last epoch:
+            - Print overall loss, accuracy, F1-score for train and test sets;
+
+            - Print precision per class if multi-class classification;
+
+            - Save train and test loss lists as .npz file for later plotting.
     """
     isLastEpoch = False
     trainLossList = []
@@ -86,26 +96,46 @@ def train(
         
     # Print final metrics
     trainAcc = accuracy_score(trainTargets, trainPreds)
-    trainPrec = precision_score(trainTargets, trainPreds, average='binary')
-    trainF1 = f1_score(trainTargets, trainPreds, average='binary')
+    trainF1 = f1_score(trainTargets, trainPreds, average='weighted')  # weighted for multi-class
     
     testAcc = accuracy_score(testTargets, testPreds)
-    testPrec = precision_score(testTargets, testPreds, average='binary')
-    testF1 = f1_score(testTargets, testPreds, average='binary')
+    testF1 = f1_score(testTargets, testPreds, average='weighted')  # weighted for multi-class
     
     print("\n" + "="*70)
     print(f"FINAL EPOCH ({config.EPOCHS}) RESULTS:")
     print("="*70)
     print(f"Training Set:")
-    print(f"  Loss: {trainLossList[-1]:.4f} | Accuracy: {trainAcc:.4f} | Precision: {trainPrec:.4f} | F1: {trainF1:.4f}")
+    print(f"  Loss: {trainLossList[-1]:.4f} | Accuracy: {trainAcc:.4f} | F1: {trainF1:.4f}")
     print(f"\nTest Set:")
-    print(f"  Loss: {testLossList[-1]:.4f} | Accuracy: {testAcc:.4f} | Precision: {testPrec:.4f} | F1: {testF1:.4f}")
+    print(f"  Loss: {testLossList[-1]:.4f} | Accuracy: {testAcc:.4f} | F1: {testF1:.4f}")
+    
+    # Print per-class precision if multi-class
+    if needPrecisionPerClass:
+        print("\n" + "-"*70)
+        print("PER-CLASS PRECISION:")
+        print("-"*70)
+        
+        # Calculate per-class precision for training set
+        trainPrecPerClass = precision_score(trainTargets, trainPreds, average=None)
+        print("\nTraining Set:")
+        for class_idx, prec in enumerate(trainPrecPerClass):
+            print(f"  Class {class_idx}: {prec:.4f}")
+        
+        # Calculate per-class precision for test set
+        testPrecPerClass = precision_score(testTargets, testPreds, average=None)
+        print("\nTest Set:")
+        for class_idx, prec in enumerate(testPrecPerClass):
+            print(f"  Class {class_idx}: {prec:.4f}")
+        print("-"*70)
+    
     print("="*70 + "\n")
 
 
+    print("Saving training and testing loss lists...")
     # Save two lists for later plotting.
     np.savez(
         "results/two_loss_lists.npz",
-        trainList=trainLossList,
-        testList=testLossList
+        train=trainLossList,
+        test=testLossList
     )
+    print("Done.")
