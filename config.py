@@ -5,9 +5,9 @@ DATA_DIR = "/kaggle/input/kaggle-ff"
 
 
 
-EPOCHS = 150
+EPOCHS = 3
 
 
-MODEL_NAMES = ['XceptionNet']
+MODEL_NAMES = ['XceptionNet', 'ViT-B-16']
 TITLE = "Loss Curves on FaceForensics++"
 
