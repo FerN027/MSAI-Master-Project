@@ -2,7 +2,7 @@ from trainer import train
 
 from dataloader import imageFFLoaders
 
-from model_image_3 import initializeComponents
+from model_image_2 import initializeComponents
 
 
 if __name__ == "__main__":
