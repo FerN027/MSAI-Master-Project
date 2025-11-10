@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import config
+from audio_loader_rawnet import getRawNetLoaders
 
 def plot(modelNames=config.MODEL_NAMES, title=config.TITLE, folder="results/"):
     """
@@ -83,6 +84,17 @@ def audio_model_initialization(name: str, num_epoch: int):
         raise ValueError(f"Model {name} not recognized for initialization.")
 
     return initializeComponent(num_epoch)
+
+def audio_loader_selection(name):
+    if name == 'RawNet2':
+        return getRawNetLoaders()
+
+    elif name == 'xxx':
+        pass
+
+    else:
+        raise ValueError(f"Model {name} not recognized for data loading.")
+
 
 if __name__ == "__main__":
     plot()
