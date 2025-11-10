@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 
 import config
 from audio_loader_rawnet import getRawNetLoaders
+from audio_loader_SpecRNet import getSpecRNetLoaders
+
 
 def plot(modelNames=config.MODEL_NAMES, title=config.TITLE, folder="results/"):
     """
@@ -77,7 +79,7 @@ def audio_model_initialization(name: str, num_epoch: int):
     if name == 'RawNet2':
         from model_audio_1 import initializeComponent
 
-    elif name == 'xxx':
+    elif name == 'SpecRNet':
         from model_audio_2 import initializeComponent
 
     else:
@@ -89,8 +91,8 @@ def audio_loader_selection(name):
     if name == 'RawNet2':
         return getRawNetLoaders()
 
-    elif name == 'xxx':
-        pass
+    elif name == 'SpecRNet':
+        return getSpecRNetLoaders()
 
     else:
         raise ValueError(f"Model {name} not recognized for data loading.")

@@ -169,19 +169,36 @@ def getSpecRNet(input_channels=1):
 
     return SpecRNet(args)
 
-if __name__ == "__main__":
+def initializeComponent(num_epoch):
+    print("Initializing SpecRNet ...")
     model = getSpecRNet()
     print(f"Number of model parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
+    
+    optimizer = torch.optim.Adam(
+        model.parameters(), 
+        lr=0.001,
+        betas=(0.9, 0.999),
+        eps=1e-8,
+        weight_decay=0.0001
+    )
+    
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=num_epoch,
+        eta_min=1e-6
+    )
+    
+    print("Done.")
+    
+    return model, optimizer, scheduler
 
-    batch_size = 16
-    input_shape = (batch_size, 1, 80, 404)
 
-    # test forward pass
-    x = torch.randn(input_shape)
-    outputs = model(x)
-    print(outputs.shape)  # should be (batch_size, nb_classes)
-    print(outputs)
+# if __name__ == "__main__":
+#     batch_size = 16
+#     input_shape = (batch_size, 1, 80, 404)
 
-
-def initializeComponent(num_epoch):
-    pass
+#     # test forward pass
+#     x = torch.randn(input_shape)
+#     outputs = model(x)
+#     print(outputs.shape)  # should be (batch_size, nb_classes)
+#     print(outputs)
