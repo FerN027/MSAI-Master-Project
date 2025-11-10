@@ -1,25 +1,22 @@
+import time
 import torch
 import numpy as np
 
-from audio_loader import getThreeAudioLoaders
+from utility import audio_loader_selection, audio_model_initialization
 
 
 def trainForModel(model_name: str):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     epochs = 3
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
     criterion = torch.nn.CrossEntropyLoss().to(device)
 
-    if model_name == 'RawNet2':
-        trainLoader, test1Loader, test2Loader = getThreeAudioLoaders('RawNet2')
+    trainLoader, test1Loader, test2Loader = audio_loader_selection(model_name)
 
-        from model_audio_1 import initializeComponent
-        model, optimizer, scheduler = initializeComponent(epochs)
+    model, optimizer, scheduler = audio_model_initialization(model_name, epochs)
 
-    elif model_name == 'xxx':
-        return
-
-    else:
-        raise ValueError(f"Model {model_name} not recognized.")
+    print(f"\nDevice: {device}, Epochs: {epochs}, Model: {model_name}")
+    print(f"{'='*80}")
 
     model = model.to(device)
     
@@ -31,11 +28,9 @@ def trainForModel(model_name: str):
     test2_losses = []
     test2_accs = []
     
-    print(f"\nUsing device: {device}")
-    print(f"Starting training for {model_name}")
-    print(f"{'='*80}\n")
-    
     for epoch in range(epochs):
+        epoch_start_time = time.time()
+        
         # Training phase
         model.train()
         train_loss = 0.0
@@ -50,7 +45,7 @@ def trainForModel(model_name: str):
             optimizer.zero_grad()
             outputs = model(Xs)
             loss = criterion(outputs, ys)
-            
+
             # Backward pass
             loss.backward()
             optimizer.step()
@@ -117,8 +112,10 @@ def trainForModel(model_name: str):
         # Update learning rate
         scheduler.step()
         
+        epoch_time = time.time() - epoch_start_time
+        
         # Print epoch statistics in one line
-        print(f"Epoch [{epoch+1}/{epochs}] | Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}% | Test1 Loss: {avg_test1_loss:.4f} Acc: {test1_accuracy:.2f}% | Test2 Loss: {avg_test2_loss:.4f} Acc: {test2_accuracy:.2f}%")
+        print(f"Epoch [{epoch+1}/{epochs}] | Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}% | Test1 Loss: {avg_test1_loss:.4f} Acc: {test1_accuracy:.2f}% | Test2 Loss: {avg_test2_loss:.4f} Acc: {test2_accuracy:.2f}% | Time: {epoch_time:.2f}s")
     
     # Print final results
     print(f"\n{'='*80}")
