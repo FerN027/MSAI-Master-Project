@@ -64,48 +64,70 @@ class AudioDataset(Dataset):
         
         return waveform, label
 
-# Return loaders customized for different models
-def getThreeAudioLoaders(model_name: str, num_workers=4):
-    # Inside each, two folders: real and fake
-    trainDir = 'data/ASVspoof_LA/train'
-    test1Dir = 'data/ASVspoof_LA/test_1'
-    test2Dir = 'data/ASVspoof_LA/test_2'
+class PreprocessedAudioDataset(Dataset):
+    """
+    Dataset for loading preprocessed audio data from data.pt file
+    """
+    def __init__(self, data_file):
+        """
+        Args:
+            data_file: Path to the preprocessed data.pt file
+        """
+        print(f"Loading preprocessed data from {data_file}")
+        self.data = torch.load(data_file)
+        print(f"Loaded {len(self.data)} samples")
+        
+        # Count labels
+        fake_count = sum(1 for _, label in self.data if label == 0)
+        real_count = sum(1 for _, label in self.data if label == 1)
+        print(f"  - Fake: {fake_count}")
+        print(f"  - Real: {real_count}")
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+        waveform, label = self.data[idx]
+        return waveform, label
 
-    if model_name == 'RawNet2':
-        # Create datasets
+def getRawNetLoaders(num_workers=4, use_preprocessed=False):
+    if use_preprocessed:
+        trainFile = 'data/ASVspoof_LA/train_preprocessed/data.pt'
+        test1File = 'data/ASVspoof_LA/test_1_preprocessed/data.pt'
+        test2File = 'data/ASVspoof_LA/test_2_preprocessed/data.pt'
+        train_dataset = PreprocessedAudioDataset(trainFile)
+        test1_dataset = PreprocessedAudioDataset(test1File)
+        test2_dataset = PreprocessedAudioDataset(test2File)
+    else:
+        trainDir = 'data/ASVspoof_LA/train'
+        test1Dir = 'data/ASVspoof_LA/test_1'
+        test2Dir = 'data/ASVspoof_LA/test_2'
         train_dataset = AudioDataset(trainDir, target_length=48000, target_sr=16000)
         test1_dataset = AudioDataset(test1Dir, target_length=48000, target_sr=16000)
         test2_dataset = AudioDataset(test2Dir, target_length=48000, target_sr=16000)
         
-        # Create dataloaders
-        trainLoader = DataLoader(
-            train_dataset,
-            batch_size=64,
-            shuffle=True,
-            num_workers=num_workers,
-            pin_memory=True
-        )
-        
-        test1Loader = DataLoader(
-            test1_dataset,
-            batch_size=64,
-            shuffle=False,
-            num_workers=num_workers,
-            pin_memory=True
-        )
-        
-        test2Loader = DataLoader(
-            test2_dataset,
-            batch_size=64,
-            shuffle=False,
-            num_workers=num_workers,
-            pin_memory=True
-        )
-
-    elif model_name == 'SincNet':
-        pass
-
-    else:
-        raise ValueError(f"Model {model_name} not recognized.")
+    trainLoader = DataLoader(
+        train_dataset,
+        batch_size=128,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=True
+    )
+    
+    test1Loader = DataLoader(
+        test1_dataset,
+        batch_size=128,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True
+    )
+    
+    test2Loader = DataLoader(
+        test2_dataset,
+        batch_size=128,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True
+    )
 
     return trainLoader, test1Loader, test2Loader
