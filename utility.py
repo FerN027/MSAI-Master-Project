@@ -72,6 +72,17 @@ def plot(modelNames=config.MODEL_NAMES, title=config.TITLE, folder="results/"):
     
     print(f"Plot saved to {folder}loss_curves.png")
 
+def audio_model_initialization(name: str, num_epoch: int):
+    if name == 'RawNet2':
+        from model_audio_1 import initializeComponent
+
+    elif name == 'xxx':
+        from model_audio_2 import initializeComponent
+
+    else:
+        raise ValueError(f"Model {name} not recognized for initialization.")
+
+    return initializeComponent(num_epoch)
 
 if __name__ == "__main__":
     plot()
