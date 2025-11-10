@@ -6,7 +6,7 @@ from utility import audio_loader_selection, audio_model_initialization
 
 
 def trainForModel(model_name: str):
-    epochs = 100
+    epochs = 3
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     num_fake_class_0 = 22800
