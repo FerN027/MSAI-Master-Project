@@ -9,13 +9,20 @@ def trainForModel(model_name: str):
     epochs = 3
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    criterion = torch.nn.CrossEntropyLoss().to(device)
+    num_fake_class_0 = 22800
+    num_real_class_1 = 2580
+    total_samples = num_fake_class_0 + num_real_class_1
+    weight_fake = total_samples / (2 * num_fake_class_0)
+    weight_real = total_samples / (2 * num_real_class_1)
+    class_weights = torch.tensor([weight_fake, weight_real]).to(device)
+    criterion = torch.nn.CrossEntropyLoss(weight=class_weights).to(device)
 
     trainLoader, test1Loader, test2Loader = audio_loader_selection(model_name)
 
     model, optimizer, scheduler = audio_model_initialization(model_name, epochs)
 
     print(f"\nDevice: {device}, Epochs: {epochs}, Model: {model_name}")
+    print(f"Class weights: Fake={weight_fake:.4f}, Real={weight_real:.4f}")
     print(f"{'='*80}")
 
     model = model.to(device)
@@ -57,6 +64,7 @@ def trainForModel(model_name: str):
             train_total += ys.size(0)
         
         # Calculate training metrics
+        assert train_total == num_fake_class_0 + num_real_class_1
         avg_train_loss = train_loss / train_total
         train_accuracy = 100.0 * train_correct / train_total
         train_losses.append(avg_train_loss)

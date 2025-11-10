@@ -293,11 +293,11 @@ def getRawNet2():
     args = {
         'nb_samp': 48000,  # 3s at 16kHz
         'in_channels': 1,
-        'filts': [128, [128,128], [128,256], [256,256]],
+        'filts': [32, [32,32], [32,64], [64,64]],
         'first_conv': 128,
-        'gru_node': 1024,
+        'gru_node': 512,
         'nb_gru_layer': 1,
-        'nb_fc_node': 1024,
+        'nb_fc_node': 512,
         'nb_classes': 2
     }
 
@@ -313,7 +313,7 @@ def initializeComponent(num_epochs):
         lr=0.001,
         betas=(0.9, 0.999),
         eps=1e-8,
-        weight_decay=0.0001
+        weight_decay=0.0005
     )
     
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(

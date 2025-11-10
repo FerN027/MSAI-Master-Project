@@ -3,6 +3,9 @@ import torch
 import torchaudio
 from torch.utils.data import Dataset, DataLoader
 
+from config import AUDIO_DATA_PREFIX
+
+
 class AudioDataset(Dataset):
     def __init__(self, root_dir, target_length=48000, target_sr=16000):
         """
@@ -64,47 +67,13 @@ class AudioDataset(Dataset):
         
         return waveform, label
 
-class PreprocessedAudioDataset(Dataset):
-    """
-    Dataset for loading preprocessed audio data from data.pt file
-    """
-    def __init__(self, data_file):
-        """
-        Args:
-            data_file: Path to the preprocessed data.pt file
-        """
-        print(f"Loading preprocessed data from {data_file}")
-        self.data = torch.load(data_file)
-        print(f"Loaded {len(self.data)} samples")
-        
-        # Count labels
-        fake_count = sum(1 for _, label in self.data if label == 0)
-        real_count = sum(1 for _, label in self.data if label == 1)
-        print(f"  - Fake: {fake_count}")
-        print(f"  - Real: {real_count}")
-    
-    def __len__(self):
-        return len(self.data)
-    
-    def __getitem__(self, idx):
-        waveform, label = self.data[idx]
-        return waveform, label
-
-def getRawNetLoaders(num_workers=4, use_preprocessed=False):
-    if use_preprocessed:
-        trainFile = 'data/ASVspoof_LA/train_preprocessed/data.pt'
-        test1File = 'data/ASVspoof_LA/test_1_preprocessed/data.pt'
-        test2File = 'data/ASVspoof_LA/test_2_preprocessed/data.pt'
-        train_dataset = PreprocessedAudioDataset(trainFile)
-        test1_dataset = PreprocessedAudioDataset(test1File)
-        test2_dataset = PreprocessedAudioDataset(test2File)
-    else:
-        trainDir = 'data/ASVspoof_LA/train'
-        test1Dir = 'data/ASVspoof_LA/test_1'
-        test2Dir = 'data/ASVspoof_LA/test_2'
-        train_dataset = AudioDataset(trainDir, target_length=48000, target_sr=16000)
-        test1_dataset = AudioDataset(test1Dir, target_length=48000, target_sr=16000)
-        test2_dataset = AudioDataset(test2Dir, target_length=48000, target_sr=16000)
+def getRawNetLoaders(num_workers=4):
+    trainDir = AUDIO_DATA_PREFIX + '/train'
+    test1Dir = AUDIO_DATA_PREFIX + '/test_1'
+    test2Dir = AUDIO_DATA_PREFIX + '/test_2'
+    train_dataset = AudioDataset(trainDir, target_length=48000, target_sr=16000)
+    test1_dataset = AudioDataset(test1Dir, target_length=48000, target_sr=16000)
+    test2_dataset = AudioDataset(test2Dir, target_length=48000, target_sr=16000)
         
     trainLoader = DataLoader(
         train_dataset,
