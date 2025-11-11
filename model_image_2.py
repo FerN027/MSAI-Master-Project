@@ -1,46 +1,61 @@
-import torch.nn as nn
 import torch.optim as optim
-from torchvision.models import vit_b_16
+from timm import create_model
 
 import config
 
-def get_vit_b_16(num_classes, image_size):
+
+def get_vit_tiny(num_classes, image_size):
     """
-    Get ViT-B/16 from scratch.
+    Get ViT-Tiny model.
     
-    Args:
-        num_classes: Number of output classes;
-        image_size: Input image size. Must be divisible by 16.
+    Architecture:
+    - Patch size: 16x16
+    - Hidden dimension: 192
+    - Number of layers: 12
+    - Number of heads: 3
+    - MLP ratio: 4
+    - Parameters: ~5.7M
     """
-    # Validate input size
-    if image_size % 16 != 0:
-        raise ValueError(f"Image size {image_size} must be divisible by 16 (patch size)")
-    
-    # Create ViT-B/16 from scratch
-    model = vit_b_16(weights=None, image_size=image_size)
-    
-    # Modify the classifier head according to the number of classes
-    model.heads = nn.Sequential(
-        nn.Linear(768, num_classes)
+    model = create_model(
+        'vit_tiny_patch16_224',
+        pretrained=False,
+        num_classes=num_classes,
+        img_size=image_size
     )
     
     return model
 
 def initializeComponents(num_classes, image_size):
-    print("Initializing ViT-B/16 ......")
-    model = get_vit_b_16(num_classes, image_size)
-    
+    print("Initializing ViT-Tiny ...")
+    model = get_vit_tiny(num_classes, image_size)
+    print(f"Number of parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
+
     optimizer = optim.AdamW(
         model.parameters(),
-        lr=3e-4,
-        weight_decay=0.05,
+        lr=1e-3,
+        weight_decay=0.01,
         betas=(0.9, 0.999)
     )
     
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(
+    warmup_epochs = 20
+    
+    warmup_scheduler = optim.lr_scheduler.LinearLR(
         optimizer,
-        T_max=config.EPOCHS,
+        start_factor=1e-6 / 1e-3,
+        end_factor=1.0,
+        total_iters=warmup_epochs
+    )
+    
+    cosine_scheduler = optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=config.EPOCHS - warmup_epochs,
         eta_min=1e-6
+    )
+    
+    scheduler = optim.lr_scheduler.SequentialLR(
+        optimizer,
+        schedulers=[warmup_scheduler, cosine_scheduler],
+        milestones=[warmup_epochs]
     )
     
     print("Done.")
