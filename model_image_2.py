@@ -32,16 +32,16 @@ def initializeComponents(num_classes, image_size):
 
     optimizer = optim.AdamW(
         model.parameters(),
-        lr=1e-3,
-        weight_decay=0.01,
+        lr=3e-4,
+        weight_decay=0.05,
         betas=(0.9, 0.999)
     )
     
-    warmup_epochs = 20
+    warmup_epochs = 15
     
     warmup_scheduler = optim.lr_scheduler.LinearLR(
         optimizer,
-        start_factor=1e-6 / 1e-3,
+        start_factor=1e-6 / 3e-4,
         end_factor=1.0,
         total_iters=warmup_epochs
     )

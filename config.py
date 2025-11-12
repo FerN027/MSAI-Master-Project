@@ -6,7 +6,7 @@ AUDIO_DATA_PREFIX = "data/ASVspoof_LA"
 # AUDIO_DATA_PREFIX = "/kaggle/input/kaggle-la"
 
 
-EPOCHS = 300
+EPOCHS = 230
 
 
 
