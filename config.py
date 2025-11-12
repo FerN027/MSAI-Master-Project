@@ -10,5 +10,5 @@ EPOCHS = 230
 
 
 
-MODEL_NAMES = ['XceptionNet', 'ViT-B-16', 'MobileViT-S']
+MODEL_NAMES = ['XceptionNet', 'ViT-Tiny', 'MobileViT-S']
 TITLE = "Loss Curves on FaceForensics++"

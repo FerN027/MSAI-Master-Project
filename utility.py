@@ -19,8 +19,8 @@ def plot(modelNames=config.MODEL_NAMES, title=config.TITLE, folder="results/"):
         - legend should be properly placed on the figure;
         - title should be set according to the input argument.
     """
-    # Define 3 clear and obvious colors
-    colors = ['blue', 'green', 'red']
+    # Define 3 clear and obvious colors: ocean blue, green, orange
+    colors = ['#006994', '#00AA00', '#FF8C00']  # Ocean blue, Green, Dark orange
     
     # Create figure
     plt.figure(figsize=(15, 10))
@@ -39,10 +39,10 @@ def plot(modelNames=config.MODEL_NAMES, title=config.TITLE, folder="results/"):
         
         # Plot training loss (solid line)
         epochs = np.arange(1, len(train_loss) + 1)
-        plt.plot(epochs, train_loss, color=color, linestyle='-', linewidth=2)
+        plt.plot(epochs, train_loss, color=color, linestyle='-', linewidth=0.85)
         
         # Plot testing loss (dashed line)
-        plt.plot(epochs, test_loss, color=color, linestyle='--', linewidth=2)
+        plt.plot(epochs, test_loss, color=color, linestyle='--', linewidth=0.85)
     
     # Create custom legend
     from matplotlib.lines import Line2D
@@ -118,15 +118,15 @@ def audio_plot():
         
         # Plot training loss (solid line)
         plt.plot(epochs, train_loss, color=color, linestyle=line_styles['train'], 
-                linewidth=2, label=f'{model_name} Train')
+                linewidth=1, label=f'{model_name} Train')
         
         # Plot test_1 loss (dashed line)
         plt.plot(epochs, test1_loss, color=color, linestyle=line_styles['test_1'], 
-                linewidth=2, label=f'{model_name} Test1')
+                linewidth=1, label=f'{model_name} Test1')
         
         # Plot test_2 loss (dotted line)
         plt.plot(epochs, test2_loss, color=color, linestyle=line_styles['test_2'], 
-                linewidth=2, label=f'{model_name} Test2')
+                linewidth=1, label=f'{model_name} Test2')
     
     # Create custom legend
     from matplotlib.lines import Line2D
@@ -185,6 +185,4 @@ def audio_loader_selection(name):
 
 
 if __name__ == "__main__":
-    # plot()
-
-    audio_plot()
+    plot()
