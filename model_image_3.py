@@ -236,3 +236,6 @@ def initializeComponents(num_classes, image_size):
     print("Done.")
 
     return model, optimizer, scheduler
+
+if __name__ == "__main__":
+    initializeComponents(6, 224)

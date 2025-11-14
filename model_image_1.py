@@ -181,6 +181,7 @@ class XceptionBlock(nn.Module):
 def initializeComponents(num_classes):
     print("Initializing XceptionNet for image deepfake...")
     model = Xception(num_classes=num_classes)
+    print(f"Number of parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
     
     # Common optimizer: Adam with weight decay
     optimizer = torch.optim.Adam(
@@ -202,3 +203,5 @@ def initializeComponents(num_classes):
     
     return model, optimizer, scheduler
     
+if __name__ == "__main__":
+    initializeComponents(6)
