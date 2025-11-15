@@ -193,12 +193,5 @@ def initializeComponent(num_epoch):
     return model, optimizer, scheduler
 
 
-# if __name__ == "__main__":
-#     batch_size = 16
-#     input_shape = (batch_size, 1, 80, 404)
-
-#     # test forward pass
-#     x = torch.randn(input_shape)
-#     outputs = model(x)
-#     print(outputs.shape)  # should be (batch_size, nb_classes)
-#     print(outputs)
+if __name__ == "__main__":
+    initializeComponent(128)

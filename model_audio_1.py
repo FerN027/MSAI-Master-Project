@@ -325,3 +325,6 @@ def initializeComponent(num_epochs):
     print("Done.")
 
     return model, optimizer, scheduler
+
+if __name__ == "__main__":
+    initializeComponent(128)
